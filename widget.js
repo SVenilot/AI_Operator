@@ -2,9 +2,8 @@
   const apiUrl = "peaceful-courtesy-production.up.railway.app";
 
   // 🔥 получаем client_id из URL
-  const script = document.currentScript;
-  const urlParams = new URLSearchParams(script.src.split("?")[1]);
-  const clientId = urlParams.get("client_id");
+  const urlParams = new URLSearchParams(window.location.search);
+  const clientId = urlParams.get("client_id") || "123";
 
   const container = document.createElement("div");
   container.style.position = "fixed";
