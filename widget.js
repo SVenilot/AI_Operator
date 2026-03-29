@@ -3,7 +3,7 @@
 
   // 🔥 получаем client_id из URL
   const urlParams = new URLSearchParams(window.location.search);
-  const clientId = urlParams.get("client_id") || "123";
+  const clientId = "123";;
 
   const container = document.createElement("div");
   container.style.position = "fixed";
