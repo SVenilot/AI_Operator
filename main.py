@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 from ai import ask_ai
 from db import SessionLocal, engine
@@ -17,7 +18,10 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# CORS
+# ====== РАЗДАЧА СТАТИКИ (ВАЖНО) ======
+app.mount("/", StaticFiles(directory=".", html=True), name="static")
+
+# ====== CORS ======
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -25,7 +29,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 # ====== МОДЕЛЬ ======
 class ChatRequest(BaseModel):
@@ -67,7 +70,7 @@ async def chat(req: ChatRequest):
         # ищем клиента
         client = db.query(Client).filter_by(client_id=req.client_id).first()
 
-        # если найден — отправляем в его Telegram
+        # если найден — отправляем в Telegram
         if client and client.telegram_chat_id:
             send_telegram(
                 name="Unknown",
@@ -83,6 +86,6 @@ async def chat(req: ChatRequest):
 
 
 # ====== ПРОВЕРКА ======
-@app.get("/")
-def root():
+@app.get("/health")
+def health():
     return {"status": "ok"}
