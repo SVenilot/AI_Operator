@@ -1,5 +1,5 @@
 (function () {
-  const apiUrl = "http://127.0.0.1:8000/chat";
+  const apiUrl = "peaceful-courtesy-production.up.railway.app";
 
   // 🔥 получаем client_id из URL
   const script = document.currentScript;
