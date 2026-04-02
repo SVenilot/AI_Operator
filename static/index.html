@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Chat</title>
+</head>
+<body>
+  <h1>Чат</h1>
+
+  <input id="message" type="text" placeholder="Напиши сообщение" />
+  <button onclick="sendMessage()">Отправить</button>
+
+  <p><strong>Ответ:</strong></p>
+  <div id="response"></div>
+
+  <script>
+    async function sendMessage() {
+      const message = document.getElementById("message").value;
+      const responseBox = document.getElementById("response");
+
+      try {
+        const res = await fetch("/chat", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ message })
+        });
+
+        const data = await res.json();
+
+        if (data.reply) {
+          responseBox.textContent = data.reply;
+        } else if (data.error) {
+          responseBox.textContent = "Ошибка: " + data.error;
+        } else {
+          responseBox.textContent = "Неожиданный ответ сервера";
+        }
+      } catch (error) {
+        responseBox.textContent = "Ошибка отправки";
+      }
+    }
+  </script>
+</body>
+</html>

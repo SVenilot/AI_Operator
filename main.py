@@ -1,41 +1,58 @@
+from pathlib import Path
+
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
-from ai import ask_ai
-from telegram_utils import send_telegram
-import os
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 app = FastAPI()
 
-# Настройка CORS для виджета
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # Можно ограничить своим доменом
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+INDEX_FILE = STATIC_DIR / "index.html"
 
-BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
+# Подключаем папку со статикой
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+
 
 @app.get("/health")
 async def health():
     return {"status": "ok"}
 
+
+@app.get("/")
+async def root():
+    if INDEX_FILE.exists():
+        return FileResponse(str(INDEX_FILE))
+    return JSONResponse(
+        {
+            "error": "index.html not found",
+            "message": "Положи файл index.html в папку static"
+        },
+        status_code=500,
+    )
+
+
 @app.post("/chat")
-async def chat(req: Request):
-    data = await req.json()
-    message = data.get("message")
-    client_id = data.get("client_id")
+async def chat(request: Request):
+    try:
+        data = await request.json()
+        text = data.get("message", "").strip()
 
-    # Отправка лида в Telegram
-    if BOT_TOKEN and CHAT_ID:
-        send_telegram(
-            CHAT_ID,
-            f"Новый лид от клиента {client_id}:\n{message}",
-            BOT_TOKEN
+        if not text:
+            return JSONResponse(
+                {"error": "Пустое сообщение"},
+                status_code=400
+            )
+
+        # ВРЕМЕННЫЙ ОТВЕТ
+        # Здесь потом можно вернуть твою логику:
+        # - отправку в Telegram
+        # - OpenAI
+        # - любую другую обработку
+        return {"reply": f"Ты написал: {text}"}
+
+    except Exception as e:
+        return JSONResponse(
+            {"error": f"Ошибка сервера: {str(e)}"},
+            status_code=500
         )
-
-    # Получаем AI-ответ
-    reply = ask_ai(message, history=[])
-
-    return {"reply": reply}
