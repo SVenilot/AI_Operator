@@ -1,4 +1,4 @@
-const serverUrl = "https://твоя-ссылка-на-railway.up.railway.app"; // <- замени на свой URL
+const serverUrl = "https://peaceful-courtesy-production.up.railway.app"; // <- замени на свой URL
 
 // Кнопка чата
 const chatButton = document.createElement("button");
